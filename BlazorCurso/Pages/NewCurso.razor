@@ -1,0 +1,82 @@
+﻿@page "/NewCurso"
+@page "/NewCurso/{id:int}"
+@using Data
+@using Interfaces
+
+@inject ICursosServices CursosServicio
+@inject NavigationManager navigationManager;
+
+<h1>Nuevo Curso</h1>
+
+<EditForm Model="@curso" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+
+    <div class="row content">
+        <div class="col-md-1"><label for="Nombre">Nombre</label></div>
+        <div class="col-md-2"><InputText id="name" @bind-Value="curso.Nombre" /></div>
+        <div class="col-md-6"><ValidationMessage For="@(() => curso.Nombre)" /> </div>
+    </div>
+    <div class="row content">
+        <div class="col-md-1"><label for="Descripcion">Descripcion</label></div>
+        <div class="col-md-2"><InputText id="descripcion" @bind-Value="curso.Descripcion" /></div>
+        <div class="col-md-6"><ValidationMessage For="@(() => curso.Descripcion)" /> </div>
+    </div>
+    <div class="row content">
+        <div class="col-md-1"><label for="Profesor">Profesor</label></div>
+        <div class="col-md-2"><InputText id="profesor" @bind-Value="curso.Profesor" /></div>
+        <div class="col-md-6"><ValidationMessage For="@(() => curso.Profesor)" /> </div>
+    </div>
+    <div class="row content">
+        <div class="col-md-1"><label for="Email">E-mail</label></div>
+        <div class="col-md-2"><InputText id="email" @bind-Value="curso.Email" /></div>
+        <div class="col-md-6"><ValidationMessage For="@(() => curso.Email)" /> </div>
+    </div>
+    <div class="row content">
+        <div class="col-md-1"><label for="Precio">Precio</label></div>
+        <div class="col-md-2"><InputNumber id="precio" @bind-Value="curso.Precio" /></div>
+        <div class="col-md-6"><ValidationMessage For="@(() => curso.Precio)" /> </div>
+    </div>
+    <div class="row content">
+        <div class="col-md-1">   <input type="submit" class="btn btn-primary" value="Guardar" @onclick="guardar" /></div>
+        <div class="col-md-2">
+            <input type="button" value="Cancelar" class="btn btn-danger" @onclick="cancelar" />
+        </div>
+
+    </div>
+
+</EditForm>
+
+
+@code {
+    [Parameter]
+    public int id { get; set; }
+
+    Curso curso = new Curso();
+
+    protected async Task guardar()
+    {
+       await CursosServicio.setCurso(curso);
+      //navigationManager.NavigateTo("/ListCursos");
+
+    }
+    protected void cancelar()
+    {
+        navigationManager.NavigateTo("/ListCursos");
+    }
+
+    private void HandleValidSubmit()
+    {
+        Console.WriteLine("OnValidSubmit");
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (id > 0)
+        {
+            curso = await CursosServicio.getCurso(id);
+
+        }
+
+    }
+
+}

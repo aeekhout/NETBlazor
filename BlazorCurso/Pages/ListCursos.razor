@@ -1,0 +1,103 @@
+﻿@page "/ListCursos"
+@using Data
+@using Interfaces
+@inject ICursosServices CursosServicio
+@inject IJSRuntime JsRuntime;
+
+
+<h1>Lista de Cursos</h1>
+
+
+@if (cursos == null)
+{
+    <p><em>No hay cursos disponibles....</em></p>
+}
+else
+{
+    <div class="input-group">
+        <input id="search" @bind="@search"  type="text" placeholder="Nombre / Descripción / Profesor" class="form-control">
+        <span class="input-group-btn">
+            <input type="submit" class="btn btn-default btn-info" value="Buscar"  @onclick="(() => searchCursos())" />
+        </span>
+    </div>
+        <table class="table">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Descripcion</th>
+                <th>Profesor</th>
+                <th>E-mail</th>
+                <th>Precio</th>
+                <th>Creado</th>
+                <th>Actualizado</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (Curso curso in cursos)
+            {
+                <tr>
+                    <td>@curso.Nombre</td>
+                    <td>@curso.Descripcion</td>
+                    <td>@curso.Profesor</td>
+                    <td>@curso.Email</td>
+                    <td>@curso.Precio</td>
+                    <td>@curso.Fecha_Ingreso</td>
+                    <td>@curso.Fecha_Update</td>
+                    <td>
+                        <a href="/NewCurso/@curso.Id" class="btn btn-primary m-1">Editar</a>
+                    </td>
+                    <td>
+                        <input type="submit" class="btn btn-danger" value="Borrar" @onclick="(() => delete(curso.Id))" />
+                    </td>
+                </tr>
+
+
+            }
+        </tbody>
+    </table>
+
+}
+
+
+
+
+@code {
+
+    private IEnumerable<Curso> cursos;
+
+    private string search { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            cursos = await CursosServicio.getAllCursos();
+        }
+        catch
+        {
+            throw;
+        }
+    }
+
+
+    protected async Task delete(int id)
+    {
+        bool confirmar = await JsRuntime.InvokeAsync<bool>("confirm", "Esta seguro?");
+        if (confirmar)
+        {
+            await CursosServicio.delCurso(id);
+
+            cursos = await CursosServicio.getAllCursos();
+        }
+    }
+
+    protected async Task searchCursos()
+    {
+      
+       cursos = await CursosServicio.getCursosSearch(search.Trim());
+
+    }
+
+
+}
